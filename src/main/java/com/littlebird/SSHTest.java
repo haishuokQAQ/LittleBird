@@ -31,7 +31,7 @@ public class SSHTest {
         this.port = port;
     }
 
-    private void init() {
+    public void init() {
         userInfo = new MyUserInfo();
         jSch = new JSch();
         try {
@@ -39,10 +39,11 @@ public class SSHTest {
             session.setPassword(password);
             session.setUserInfo(userInfo);
 
+            Properties config = new Properties();
+            config.setProperty("StrictHostKeyChecking", "no");
+            session.setConfig(config);
             session.connect(30000);
-            /*Channel channel = session.openChannel("shell");
-           // Properties config = new Properties();
-            //config.setProperty("StrictHostKeyChecking", "no");
+           /* Channel channel = session.openChannel("shell");
             channel.setInputStream(System.in);
             channel.setOutputStream(System.out);
             channel.connect(3000);*/
@@ -66,15 +67,56 @@ public class SSHTest {
     }
 
 
+    private Channel getShellChannel(){
+        if (session == null || !session.isConnected()) {
+            System.out.println("Not connect yet.");
+            return null;
+        }
+        try {
+            Channel channel = session.openChannel("shell");
+            return channel;
+        } catch (JSchException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
+    public Channel connectShell(InputStream ins, OutputStream ops){
+        Channel channel = getShellChannel();
+        channel.setInputStream(ins);
+        channel.setOutputStream(ops);
+        try {
+            channel.connect();
+        } catch (JSchException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return channel;
+    }
 
-    public static void main(String[] args) throws IOException {
-        SSHTest test = new SSHTest("root","19950318", "192.168.109.128",22);
+    public Channel connectShell(){
+        Channel channel =  connectShell(System.in, System.out);
+        try {
+            channel.connect();
+        } catch (JSchException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return channel;
+    }
+
+    public static void main(String[] args) throws Exception {
+        SSHTest test = new SSHTest("root","19950318", "192.168.146.128",22);
         test.init();
-        File file = new File("test.txt");
-        FileWriter fw = new FileWriter(file,true);
-        fw.write("asdadadasdasd");
-        fw.close();
-        test.putFile(file);
+           /* Channel channel = test.session.openChannel("shell");
+            channel.setInputStream(System.in);
+            channel.setOutputStream(System.out);
+            channel.connect(3000);*/
+        Channel channel = test.connectShell();
+        //File file = new File("test.txt");
+        //FileWriter fw = new FileWriter(file,true);
+        //fw.write("asdadadasdasd");
+        //fw.close();
+        //test.putFile(file);
     }
 }
