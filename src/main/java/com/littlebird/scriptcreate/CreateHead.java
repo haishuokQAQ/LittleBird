@@ -16,7 +16,9 @@ public class CreateHead {
 
     public static String createHead(String pid, String hostName, String tarHost){
         StringBuilder headCreater = new StringBuilder();
-        headCreater.append("#!bin/sh\n").append(pidBuilder).append(pid).append("\n");
+        headCreater.append("#!/" +
+                "" +
+                "bin/sh\n").append(pidBuilder).append(pid).append("\n");
         headCreater.append(hostNameBuilder).append(hostName).append("\n");
         headCreater.append(tarHostBuilder).append(tarHost).append("\n");
         return headCreater.toString();
